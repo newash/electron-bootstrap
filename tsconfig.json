@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "declaration": false,    // generate d.ts files
+    "jsx": "react",
+    "module": "commonjs",
+    "importHelpers": true,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "outDir": "output/",
+    "pretty": true,
+    "removeComments": true,
+    "sourceMap": true,
+    //"inlineSources": true,
+    "target": "es5",
+    "typeRoots": ["node_modules/@types"] // this should be the default, but without it Mocha tests don't work
+  },
+  "include": [              // use "include" instead of "files" to make TSLint happy
+    "typings/*",
+    "main/main.ts",
+    "renderer/renderer.ts",
+    "**/*.spec.ts"
+  ]
+}

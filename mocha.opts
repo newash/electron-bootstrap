@@ -1,0 +1,6 @@
+--compilers ts:ts-node/register,tsx:ts-node/register
+--reporter list
+--watch-extensions tsx,ts
+--timeout 90000
+main/**/*.spec.ts
+renderer/**/*.spec.ts

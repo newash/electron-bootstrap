@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Main Process",
+      "protocol": "legacy",
+      "runtimeExecutable": "npm",
+      "windows": {
+        "runtimeExecutable": "npm.cmd"
+      },
+      "runtimeArgs": [ "run-script", "start", "--", "--debug-brk=5858", "--remote-debugging-port=9222" ],
+      "port": 5858,
+      "cwd": "${workspaceRoot}/output",
+      "sourceMaps": true,
+      "outFiles": [ "${workspaceRoot}/output/**/*.js" ]
+    }, {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Debug Renderer Process",
+      "port": 9222,
+      "webRoot": "${workspaceRoot}/output",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceRoot}/*"
+      }
+    }, {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Tests",
+      "protocol": "inspector",
+      "runtimeExecutable": "npm",
+      "windows": {
+        "runtimeExecutable": "npm.cmd"
+      },
+      "runtimeArgs": [ "run-script", "test", "--", "--inspect=5858" ],
+      "port": 5858,
+      "cwd": "${workspaceRoot}/output",
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+	  {
+	    "name": "Debug both Main and Renderer processes",
+	    "configurations": ["Debug Renderer Process", "Debug Main Process"]
+	  }
+  ]
+}
