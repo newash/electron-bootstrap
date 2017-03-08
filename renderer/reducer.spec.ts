@@ -9,7 +9,7 @@ describe("Renderer Process reducer", function() {
   it("returns 'windowOpen' being true as the initial state", function() {
     expect(initialState.windowOpen).to.be.true;
   });
-  it("returns with a new state with 'windowOpen' being false for a 'CLOSE' action", function() {
+  xit("returns with a new state with 'windowOpen' being false for a 'CLOSE' action", function() {
     const newState = reducer(initialState, closeAction);
     expect(newState).not.to.equal(initialState);
     expect(newState.windowOpen).to.be.false;

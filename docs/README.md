@@ -65,6 +65,7 @@ To load the test in a browser they do have to be compiled and bundled. For that 
 To solve the issue [most tutorials](http://stackoverflow.com/a/32386750) suggest an index file including all test files dynamically, but there's a neater way: since Webpack config is a normal JavaScript file itself, the file search can be done there as well.
 
 ```javascript
+// in webpack.config.test.js
 entry: {
   test: glob.sync("./renderer/**/*.spec.ts").map(path => "mocha-loader!" + path)
 }
@@ -73,12 +74,53 @@ entry: {
 This code results an array of filenames for the *test* chunk and Wepack puts them nicely into the same output bundle. Also note the `mocha-loader` prefix on the filenames. The [mocha-loader](https://github.com/webpack-contrib/mocha-loader) is a small plugin with a non-existing documention about that it does exactly, but if you look at its source you can see it's just does the [webpage preparation](https://mochajs.org/#running-mocha-in-the-browser) for the tests that could also be done manually. You just have to load the URL for the output JavaScript in *webpack-dev-server* and it works. No big magic.
 
 ## Code coverage
-> TODO: describe how code coverage is set up
+Code coverage in JavaScript is typically done by the [Istanbul](https://istanbul.js.org/) library. The library is currently under a bigger change, and [it's 2.0 command line tool](https://github.com/gotwarlost/istanbul/issues/706) became the [nyc project](https://github.com/istanbuljs/nyc). So that's what is used now to do the code coverage analysis. In it's current version it already supports source maps and can use *ts-node* like Mocha, so there's not much tweaking needed to make it work with TypeScript.
+
+Similar to unit testing (and debugging), articles about TypeScript code coverage just contain the working setups, they don't explain them. This seems to be the minimal working setup:
+
+```json
+// in package.json
+"scripts": {
+  "test:coverage": "nyc npm test"
+},
+"nyc": {
+  "include": [
+    "main/**",
+    "renderer/**"
+  ],
+  "extension": [
+    ".ts",
+    ".tsx"
+  ],
+  "require": [
+    "ts-node/register"
+  ],
+  "tempDirectory": "output/.nyc_output",
+  "reportDir": "output/coverage",
+  "sourceMap": true,
+  "instrument": true,
+  "all": true,
+  "reporter": [
+    "text-summary",
+    "html"
+  ]
+}
+```
+
+*nyc* [can handle](https://github.com/istanbuljs/nyc/blob/master/README.md#instrumenting-your-code) running Mocha through NPM, that's what the script line is doing. Setting options for *nyc* can be done in [3 different ways](https://github.com/istanbuljs/nyc/blob/master/README.md#configuring-nyc) and the simplest one is to put them into the `package.json` file. The options above are:
+
+- **include**: Either with this or with the *exclude* option, but the source folders have to be filtered (`node_modules` and the output folder must definitely be excluded). The file patterns in Mocha config don't matter, since with code coverage untested files are also have to be reported.
+- **extensions**: By default only `.js` files are scanned in the included folders, TypeScript extensions have to be added here.
+- **require**: This works similarly to Mocha config: here can be the compiler specified if the source files are not simple JavaScript files. But why set it here, if in Mocha it's already set? That's right, those files tested by Mocha don't need this settings, they already been taken care of. This setting is for those files that are *not* tested, not covered. Removing this setting removes those files from the report.
+- **tempDirectory** and **reportDir**: They are necessary so code coverage doesn't create additional directories in the project root folder. Removing them doesn't affect the analysis process.
+- **sourceMap**: Source map file handling, but it's already `true` by default, so it can be omitted.
+- **instrument** and **all**: With both set to `true` all source files are evaluated, even the completely untested ones. If either of them is false, only the tested files are included in the report. *(I'm not sure what's happening here, but that's the effect.)*
+- **reporter**: Any of the [supported Istanbul reporters](https://github.com/istanbuljs/istanbul-reports/tree/master/lib) can be listed here. Note that if you want to parse the results in a CI tool (like [in GitLab CI](https://docs.gitlab.com/ce/user/project/pipelines/settings.html#test-coverage-parsing)) use something that has percentages like `text-summary`.
 
 ## Debugging TypeScript in VSCode
 
 ### Debugging Electron's main process
-*(Note: beside of a single setting (see below) this setup could also apply to debugging Express or a command line app, it's not really Electron-specific.)*
+> Note: Beside of a single setting (see below) this setup could also apply to debugging Express or a command line app, it's not really Electron-specific.
 
 For debugging in VSCode a launch config has to be created in `.vscode/launch.json`. A launch config can only do a single command, but since it's TypeScript, a compilation has to be done first. There are two options for that:
 
@@ -120,7 +162,7 @@ Speaking of them, the sourcemap files also have to be prepared, because default 
 Fortunately that setting is just a shortcut for an internal Webpack plugin and that plugin can also be configured directly. Two changes have to be made to the map file: the paths in the `sources` array cannot have the "webpack:///" prefix, and the `sourceRoot` has to have the relative path of the project root folder from the output folder. This is how to set them in Webpack config file:
 
 ```javascript
-// instead of "devtool: cheap-module-source-map"
+// in webpack.config.main.js instead of "devtool: cheap-module-source-map"
 plugins: [
   new webpack.SourceMapDevToolPlugin({
     filename: "[file].map",
@@ -144,6 +186,7 @@ Setting up VSCode debugging to the renderer process might not be necessary, sinc
 If for any reason debugging it in VSCode was necessary, probably the easiest is to attach to the launched process. For that the [Chrome debugger plugin](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) has to be installed in VSCode first. Debugger can be started with a separate launch config or it can be combined with the main process as well.
 
 ```json
+// in launch.json
 "configurations": [
   {
     "type": "chrome",
@@ -177,6 +220,7 @@ There were two options for unit testing, in Node and in Browser. Either because 
 Remember that those test didn't have a Webpack build before, but the source files were piped through *ts-node*. Fortunately *ts-node* does create sourcemaps in the background and VSCode is able to locate them without any extra configuration, so this launcher setting works:
 
 ```json
+// in launch.json
 "configurations": [
   {
     "type": "node",
