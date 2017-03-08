@@ -1,16 +1,25 @@
 import * as React from "react";
 import { render } from "react-dom";
+import { MiddlewareAPI, Dispatch, Action } from "redux";
+import { Provider } from "react-redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import reducer, { State } from "./reducer";
+import App from "./components/App";
 import "../assets/index.html";
 
-function closeWindow(e: React.MouseEvent<HTMLButtonElement>) {
-  window.close();
-}
+const windowCloserMiddleware = (store: MiddlewareAPI<any>) => (next: Dispatch<any>) => (action: Action): Action => {
+  let result = next(action);
+  if ((store.getState() as State).windowOpen === false) {
+    window.close();
+  }
+  return result;
+};
 
-export const App = () => {
-  return <div className="mui-container-fluid mui--text-center">
-    <div className="mui--text-dark mui--text-headline">Hello, this is the Renderer process</div>
-    <button className="mui-btn mui-btn--raised mui-btn--primary" onClick={closeWindow}>Close window</button>
-  </div>;
-}
+const store = createStore(reducer, applyMiddleware(windowCloserMiddleware));
 
-render(<App />, document.getElementById("root") );
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
