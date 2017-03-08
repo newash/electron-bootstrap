@@ -3,13 +3,13 @@ As it is written in the project description this project contains the configurat
 
 ### Features
 
-- Built (both Main and Renderer code, and the tests as well) from TypeScript
-- Unit tests can be launched in two ways:
-  1. from the command line, using *ts-node* without precompiling
-  1. in the browser, precompiled with Webpack
-- Code coverage using Istanbul
-- The application can be debugged from VSCode (both Main and Renderer processes)
-- Unit tests can also be debugged from VSCode
+- [Built](#building-the-project) (both Main and Renderer code, and the tests as well) from TypeScript
+- [Unit tests](#unit-testing-typescript) can be launched in two ways:
+  1. [from the command line](#unit-testing-from-the-command-line), using *ts-node* without precompiling
+  1. [in the browser](#unit-testing-in-browser), precompiled with Webpack
+- [Code coverage](#code-coverage) using Istanbul
+- [The application can be debugged](#debugging-electrons-main-process) from VSCode (both Main and Renderer processes)
+- [Unit tests can also be debugged](#debugging-unit-tests) from VSCode
 
 ## Motivation
 What is the reason for building a desktop app with web technologies instead of the good ol' programming languages?
@@ -18,7 +18,7 @@ First because it's cross platform. You can build your desktop app for Windows, O
 
 For first, because it was *created for UI*. Not on its own, but if you add HTML DOM and CSS, they are very much UI technologies. Of course you can create UI with Java as well, there are libraries for that (SWT), but they are not as easy to work with or to customize as these web technologies.
 
-For second, it's popular. Now something being popular wouldn't justify that being chosen, but it has a nice consequence: there are *thousands of libraries* created with that for all possible uses. Not only for small tasks, but complete UI widget toolkits (rememeber SWT?).
+For second, it's popular. Now something being popular wouldn't justify that being chosen, but it has a nice consequence: there are *thousands of libraries* created with that for all possible uses. Not only for small tasks, but complete UI widget toolkits (remember SWT?).
 
 And for last, it's not that JavaScript that it used to be. These days there are unit testing frameworks, linters, packagers, complete state management libraries, polyfill libraries for the latest web APIs and even webservers written in JavaScript. It matured so much for the last years than it's not easier any more to write the source in Java and compile it into JavaScript (GWT).
 
@@ -71,7 +71,7 @@ entry: {
 }
 ```
 
-This code results an array of filenames for the *test* chunk and Wepack puts them nicely into the same output bundle. Also note the `mocha-loader` prefix on the filenames. The [mocha-loader](https://github.com/webpack-contrib/mocha-loader) is a small plugin with a non-existing documention about that it does exactly, but if you look at its source you can see it's just does the [webpage preparation](https://mochajs.org/#running-mocha-in-the-browser) for the tests that could also be done manually. You just have to load the URL for the output JavaScript in *webpack-dev-server* and it works. No big magic.
+This code results an array of filenames for the *test* chunk and Wepack puts them nicely into the same output bundle. Also note the `mocha-loader` prefix on the filenames. The [mocha-loader](https://github.com/webpack-contrib/mocha-loader) is a small plugin with a non-existing documentation about that it does exactly, but if you look at its source you can see it's just does the [webpage preparation](https://mochajs.org/#running-mocha-in-the-browser) for the tests that could also be done manually. You just have to load the URL for the output JavaScript in *webpack-dev-server* and it works. No big magic.
 
 ## Code coverage
 Code coverage in JavaScript is typically done by the [Istanbul](https://istanbul.js.org/) library. The library is currently under a bigger change, and [it's 2.0 command line tool](https://github.com/gotwarlost/istanbul/issues/706) became the [nyc project](https://github.com/istanbuljs/nyc). So that's what is used now to do the code coverage analysis. In it's current version it already supports source maps and can use *ts-node* like Mocha, so there's not much tweaking needed to make it work with TypeScript.
@@ -116,6 +116,8 @@ Similar to unit testing (and debugging), articles about TypeScript code coverage
 - **sourceMap**: Source map file handling, but it's already `true` by default, so it can be omitted.
 - **instrument** and **all**: With both set to `true` all source files are evaluated, even the completely untested ones. If either of them is false, only the tested files are included in the report. *(I'm not sure what's happening here, but that's the effect.)*
 - **reporter**: Any of the [supported Istanbul reporters](https://github.com/istanbuljs/istanbul-reports/tree/master/lib) can be listed here. Note that if you want to parse the results in a CI tool (like [in GitLab CI](https://docs.gitlab.com/ce/user/project/pipelines/settings.html#test-coverage-parsing)) use something that has percentages like `text-summary`.
+
+> TODO: Doing the same with [Karma](https://karma-runner.github.io/)
 
 ## Debugging TypeScript in VSCode
 
