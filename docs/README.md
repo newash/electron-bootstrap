@@ -28,8 +28,11 @@ JavaScript also evolved as a language in the last years, its ES6 version is alre
 
 So these days JavaScript is not a toy as it used to be, it's a proper language with a huge ecosystem around it, that's perfectly suitable for writing desktop applications with it.
 
+## Tasks and hotkeys in VSCode
+> TODO: generic task setup (with [coloured output](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal)) and how keyboard shortcuts work
+
 ## Building the project
-> TODO: here describe the necessary config files, the command to run from the command line, and also the setup to do that from VSCode
+> TODO: here describe the necessary config files, the command to run from the command line, also the VSCode task, the keyboard shortcut and [the problem matcher](https://code.visualstudio.com/docs/editor/tasks#_defining-a-problem-matcher)
 
 ## Unit testing TypeScript
 The most popular unit testing library (as of now) for JS is [Mocha](https://mochajs.org/). It can be used with several assertion frameworks to have different testing syntax. It can be invoked from JS, but can also be launched from the command line, or combined with other launchers like Karma. It's still going to be complicated without combining it with something else, so let's focus on launching it on its own. Even in this case there are two options:
@@ -53,7 +56,7 @@ renderer/**/*.spec.ts
 
 The last two lines are the path patterns fo the test files to pick. As a best practice, test files are beside of the sources they test but having `.spec.ts` extensions instead of `.ts`. It's easier to see if tests are missing and it doesn't affect the builds.
 
-> TODO: keyboard shortcut setup in VSCode for running the tests
+> TODO: task and keyboard shortcut setup in VSCode for running the tests
 >
 > [How to create tasks for building or testing in VSCode](https://code.visualstudio.com/docs/editor/tasks): these tasks can easily be done through the command line, the value in doing it in VSCode is to be able to use the results in the editors. Such as highlighting the compilation errors or jumping to failing tests. See [an example](https://code.visualstudio.com/docs/languages/typescript#_transpiling-typescript-into-javascript) for compilation errors in TypeScript. Also check the notes [here](http://blog.theburge.co/web/2016/02/27/typescript-testing-workflows-part-2-integrating-editors.html#vscode) for the keyboard shortcuts.
 
