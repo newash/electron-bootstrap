@@ -30,6 +30,10 @@ So these days JavaScript is not a toy as it used to be, it's a proper language w
 
 ## Tasks and hotkeys in VSCode
 > TODO: generic task setup (with [coloured output](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal)) and how keyboard shortcuts work
+>
+> [How to create tasks for building or testing in VSCode](https://code.visualstudio.com/docs/editor/tasks): these tasks can easily be done through the command line, the value in doing it in VSCode is to be able to use the results in the editors. Such as highlighting the compilation errors or jumping to failing tests. See [an example](https://code.visualstudio.com/docs/languages/typescript#_transpiling-typescript-into-javascript) for compilation errors in TypeScript. Also check the notes [here](http://blog.theburge.co/web/2016/02/27/typescript-testing-workflows-part-2-integrating-editors.html#vscode) for the keyboard shortcuts.
+>
+> Examples: [[1]](https://gist.github.com/D10221/6965751bd8d2e279cbbf), [[2]](https://github.com/Microsoft/vscode/blob/master/src/vs/platform/markers/common/problemMatcher.ts#L411), [[3]](http://code.visualstudio.com/docs/customization/keybindings)
 
 ## Building the project
 > TODO: here describe the necessary config files, the command to run from the command line, also the VSCode task, the keyboard shortcut and [the problem matcher](https://code.visualstudio.com/docs/editor/tasks#_defining-a-problem-matcher)
@@ -57,8 +61,6 @@ renderer/**/*.spec.ts
 The last two lines are the path patterns fo the test files to pick. As a best practice, test files are beside of the sources they test but having `.spec.ts` extensions instead of `.ts`. It's easier to see if tests are missing and it doesn't affect the builds.
 
 > TODO: task and keyboard shortcut setup in VSCode for running the tests
->
-> [How to create tasks for building or testing in VSCode](https://code.visualstudio.com/docs/editor/tasks): these tasks can easily be done through the command line, the value in doing it in VSCode is to be able to use the results in the editors. Such as highlighting the compilation errors or jumping to failing tests. See [an example](https://code.visualstudio.com/docs/languages/typescript#_transpiling-typescript-into-javascript) for compilation errors in TypeScript. Also check the notes [here](http://blog.theburge.co/web/2016/02/27/typescript-testing-workflows-part-2-integrating-editors.html#vscode) for the keyboard shortcuts.
 
 ### Unit testing in browser
 While command line testing is suitable both for server and browser code (Electron: main and renderer processes), for obvious reasons browser testing is more for browser code only.
