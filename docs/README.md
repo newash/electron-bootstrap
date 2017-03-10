@@ -3,6 +3,7 @@ As it is written in the project description this project contains the configurat
 
 ### Features
 
+- [Hotkey setup](#tasks-and-hotkeys-in-vscode) in VSCode for the rest of the features
 - [Built](#building-the-project) (both Main and Renderer code, and the tests as well) from TypeScript
 - [Unit tests](#unit-testing-typescript) can be launched in two ways:
   1. [from the command line](#unit-testing-from-the-command-line), using *ts-node* without precompiling
@@ -29,14 +30,79 @@ JavaScript also evolved as a language in the last years, its ES6 version is alre
 So these days JavaScript is not a toy as it used to be, it's a proper language with a huge ecosystem around it, that's perfectly suitable for writing desktop applications with it.
 
 ## Tasks and hotkeys in VSCode
-> TODO: generic task setup (with [coloured output](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal)) and how keyboard shortcuts work
->
-> [How to create tasks for building or testing in VSCode](https://code.visualstudio.com/docs/editor/tasks): these tasks can easily be done through the command line, the value in doing it in VSCode is to be able to use the results in the editors. Such as highlighting the compilation errors or jumping to failing tests. See [an example](https://code.visualstudio.com/docs/languages/typescript#_transpiling-typescript-into-javascript) for compilation errors in TypeScript. Also check the notes [here](http://blog.theburge.co/web/2016/02/27/typescript-testing-workflows-part-2-integrating-editors.html#vscode) for the keyboard shortcuts.
->
-> Examples: [[1]](https://gist.github.com/D10221/6965751bd8d2e279cbbf), [[2]](https://github.com/Microsoft/vscode/blob/master/src/vs/platform/markers/common/problemMatcher.ts#L411), [[3]](http://code.visualstudio.com/docs/customization/keybindings)
+Though running the build and test NPM tasks is relatively easy from the command line, it can even be easier if [shortcut keys](http://code.visualstudio.com/docs/customization/keybindings#_customizing-shortcuts) are assigned to them in the editor. In addition, VSCode is able to [parse the output text](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for any task launched, and it can create *problem markers* for the source code when building, for example.
+
+To set that up, a `.vscode/tasks.json` file has to be created with the following skeleton:
+
+```json
+// in .vscode/tasks.json
+{
+  "version": "0.1.0",
+  "_runner": "terminal",
+  "command": "npm",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "tasks": [{
+    "taskName": "task name",
+    "args": ["NPM task argument"],
+    "problemMatcher": [
+      // task output specific Problem Matcher definition
+    ]
+  }]
+}
+```
+
+Of course not only NPM can be launched as a task, but in this project that is used for running everything. The `_runner` option is currently an [experimental setting](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal) to show the output in the Terminal window instead of the Output window, and it's useful because Terminal can show colours. The `tasks` array will contain the named tasks and they will be defined in the corresponding sections below.
+
+[Assigning shortcut keys](http://code.visualstudio.com/docs/customization/keybindings#_customizing-shortcuts) for these tasks have to be done in a different file, in `User/keybindings.json`. That file is not part of the project structure, it has to be edited separately.
 
 ## Building the project
-> TODO: here describe the necessary config files, the command to run from the command line, also the VSCode task, the keyboard shortcut and [the problem matcher](https://code.visualstudio.com/docs/editor/tasks#_defining-a-problem-matcher)
+As an Electron project has a part that runs in Node.js and another that runs in Chrome, those two parts need different Webpack configurations to build. Here they are `/webpack.config.main.js` and `/webpack.config.renderer.js`, and they are used in two separate NPM build scripts.
+
+```json
+// in package.json
+"scripts": {
+  "build:main": "webpack --progress --colors --config=webpack.config.main.js",
+  "build:renderer": "webpack --progress --colors --config=webpack.config.renderer.js",
+  "build": "npm run build:main && npm run build:renderer",
+  "start": "electron ."
+}
+
+// in .vscode/tasks.json
+"tasks": [{
+  "taskName": "build",
+  "args": ["run", "build"],
+  "isBuildCommand": true,
+  "problemMatcher": {
+    "fileLocation": ["relative", "${workspaceRoot}"],
+    "pattern": [{
+      "regexp": "ERROR in (.*)$",
+      "file": 1
+    }, {
+      "regexp": "\\((\\d+),(\\d+)\\): (error|warning|info)? (TS\\d+): (.*)$",
+      "line": 1,
+      "column": 2,
+      "severity": 3,
+      "code": 4,
+      "message": 5
+    }]
+  }
+}, {
+  "taskName": "run",
+  "args": ["start"]
+}]
+
+// in User/keybindings.json
+[
+  { "key": "f4", "command": "workbench.action.tasks.runTask", "args": "run" },
+]
+```
+
+There are two tasks defined above: the build and the run processes.
+
+1. The build task launches `npm run build`, and marked as being a build command (with `isBuildCommand`) so it's bound to the default build hotkey (`Ctrl+Shit+B`). It also has a custom Problem Matcher definition because VSCode doesn't have a [built-in matcher](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for Webpack. It's TypeScript output is very similar to what `$tsc` expects, so this pattern is [based on that](https://github.com/Microsoft/vscode/blob/master/src/vs/platform/markers/common/problemMatcher.ts#L411) and on [another Gist example](https://gist.github.com/D10221/6965751bd8d2e279cbbf).
+1. The run task is much simpler, only there's no run command in VSCode by default, so it has to have a hotkey defined separately.
 
 ## Unit testing TypeScript
 The most popular unit testing library (as of now) for JS is [Mocha](https://mochajs.org/). It can be used with several assertion frameworks to have different testing syntax. It can be invoked from JS, but can also be launched from the command line, or combined with other launchers like Karma. It's still going to be complicated without combining it with something else, so let's focus on launching it on its own. Even in this case there are two options:
@@ -60,7 +126,26 @@ renderer/**/*.spec.ts
 
 The last two lines are the path patterns fo the test files to pick. As a best practice, test files are beside of the sources they test but having `.spec.ts` extensions instead of `.ts`. It's easier to see if tests are missing and it doesn't affect the builds.
 
-> TODO: task and keyboard shortcut setup in VSCode for running the tests
+Testing can be launched with the `test` script. Note that in NPM test is special, not needing the `run` keyword, that's why there's only one argument set for the VSCode task. Also test can be marked similarly to the build task (with `isTestCommand`), but that doesn't come with a default key binding, only with a special command code.
+
+```json
+// in package.json
+"scripts": {
+  "test": "mocha --opts mocha.opts"
+}
+
+// in .vscode/tasks.json
+"tasks": [{
+  "taskName": "test",
+  "args": ["test"],
+  "isTestCommand": true
+}]
+
+// in User/keybindings.json
+[
+  { "key": "f7", "command": "workbench.action.tasks.test" }
+]
+```
 
 ### Unit testing in browser
 While command line testing is suitable both for server and browser code (Electron: main and renderer processes), for obvious reasons browser testing is more for browser code only.
@@ -122,8 +207,6 @@ Similar to unit testing (and debugging), articles about TypeScript code coverage
 - **instrument** and **all**: With both set to `true` all source files are evaluated, even the completely untested ones. If either of them is false, only the tested files are included in the report. *(I'm not sure what's happening here, but that's the effect.)*
 - **reporter**: Any of the [supported Istanbul reporters](https://github.com/istanbuljs/istanbul-reports/tree/master/lib) can be listed here. Note that if you want to parse the results in a CI tool (like [in GitLab CI](https://docs.gitlab.com/ce/user/project/pipelines/settings.html#test-coverage-parsing)) use something that has percentages like `text-summary`.
 
-> TODO: Doing the same with [Karma](https://karma-runner.github.io/)
-
 ## Debugging TypeScript in VSCode
 
 ### Debugging Electron's main process
@@ -139,10 +222,10 @@ I picked the 2. option because that way application-specific launch scripts can 
 ```json
 // in package.json
 "scripts": {
-  "start": "electron .",
+  "start": "electron ."
 }
 
-// in launch.json
+// in .vscode/launch.json
 "configurations": [
   {
     "type": "node",
@@ -185,7 +268,7 @@ With these settings you should be able to set breakpoints in the main process' T
 
 > Note: There's going to be an easier way doing the above when Electron's Node will be [supporting](https://github.com/electron/electron/issues/6634) `--inspect` launch parameter. Then it will be possible to use the *node2* debugger with it's [sourceMapPathOverrides](https://github.com/Microsoft/vscode-node-debug2#sourcemappathoverrides) option, so the Webpack config above won't be necessary.
 
-> TODO: keyboard shortcut setup launching the debugger
+Debugging is a "task" on it's own in VSCode, it doesn't need an additional task definition for hotkeys. By default it can be launched with `F5`, but that can be customized using the `workbench.action.debug.start` code.
 
 ### Debugging Electron's renderer process
 Setting up VSCode debugging to the renderer process might not be necessary, since Chrome's debugger is really good and also can handle sourcemaps, so not even TypeScript is a problem.
@@ -193,7 +276,7 @@ Setting up VSCode debugging to the renderer process might not be necessary, sinc
 If for any reason debugging it in VSCode was necessary, probably the easiest is to attach to the launched process. For that the [Chrome debugger plugin](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) has to be installed in VSCode first. Debugger can be started with a separate launch config or it can be combined with the main process as well.
 
 ```json
-// in launch.json
+// in .vscode/launch.json
 "configurations": [
   {
     "type": "chrome",
@@ -227,7 +310,7 @@ There were two options for unit testing, in Node and in Browser. Either because 
 Remember that those test didn't have a Webpack build before, but the source files were piped through *ts-node*. Fortunately *ts-node* does create sourcemaps in the background and VSCode is able to locate them without any extra configuration, so this launcher setting works:
 
 ```json
-// in launch.json
+// in .vscode/launch.json
 "configurations": [
   {
     "type": "node",
