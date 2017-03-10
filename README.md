@@ -21,3 +21,13 @@ For the complete list of features and for the explanations, see [the documentati
 - [**package.json**](package.json) - Node project definition file with all the command line scripts
 - [**tsconfig.json**](tsconfig.json) - TypeScript project definition file
 - [**webpack.config.***](webpack.config.base.js) - build configs for Webpack
+
+## Hotkeys
+Keyboard shortcut definitions are [not part of](docs/README.md#tasks-and-hotkeys-in-vscode) a project structure, they live in `User/keybindings.json`. These are the settings used here:
+
+```json
+[
+  { "key": "f4", "command": "workbench.action.tasks.runTask", "args": "run" },
+  { "key": "f7", "command": "workbench.action.tasks.test" }
+]
+```
