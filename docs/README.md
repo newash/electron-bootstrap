@@ -30,7 +30,7 @@ JavaScript also evolved as a language in the last years, its ES6 version is alre
 So these days JavaScript is not a toy as it used to be, it's a proper language with a huge ecosystem around it, that's perfectly suitable for writing desktop applications with it.
 
 ## Tasks and hotkeys in VSCode
-Though running the build and test NPM tasks is relatively easy from the command line, it can even be easier if [shortcut keys](http://code.visualstudio.com/docs/customization/keybindings#_customizing-shortcuts) are assigned to them in the editor. In addition, VSCode is able to [parse the output text](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for any task launched, and it can create *problem markers* for the source code when building, for example.
+Though running the build and test NPM tasks is relatively easy from the command line, it can even be easier if [shortcut keys](http://code.visualstudio.com/docs/customization/keybindings#_customizing-shortcuts) were assigned to them in the editor. In addition, VSCode is able to [parse the output text](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for any task launched, and it can create *problem markers* for the source code when building, for example.
 
 To set that up, a `.vscode/tasks.json` file has to be created with the following skeleton:
 
@@ -53,7 +53,7 @@ To set that up, a `.vscode/tasks.json` file has to be created with the following
 }
 ```
 
-Of course not only NPM can be launched as a task, but in this project that is used for running everything. The `_runner` option is currently an [experimental setting](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal) to show the output in the Terminal window instead of the Output window, and it's useful because Terminal can show colours. The `tasks` array will contain the named tasks and they will be defined in the corresponding sections below.
+Of course it's not only NPM that can be launched as a task, but in this project NPM is used for running everything. The `_runner` option is currently an [experimental setting](https://code.visualstudio.com/updates/v1_9#_task-execution-in-terminal) to show the output in the Terminal window instead of the Output window, and it's used because Terminal can show colours. The `tasks` array will contain the named tasks and they will be defined in the corresponding sections below.
 
 [Assigning shortcut keys](http://code.visualstudio.com/docs/customization/keybindings#_customizing-shortcuts) for these tasks have to be done in a different file, in `User/keybindings.json`. That file is not part of the project structure, it has to be edited separately.
 
@@ -101,8 +101,8 @@ As an Electron project has a part that runs in Node.js and another that runs in 
 
 There are two tasks defined above: the build and the run processes.
 
-1. The build task launches `npm run build`, and marked as being a build command (with `isBuildCommand`) so it's bound to the default build hotkey (`Ctrl+Shit+B`). It also has a custom Problem Matcher definition because VSCode doesn't have a [built-in matcher](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for Webpack. It's TypeScript output is very similar to what `$tsc` expects, so this pattern is [based on that](https://github.com/Microsoft/vscode/blob/master/src/vs/platform/markers/common/problemMatcher.ts#L411) and on [another Gist example](https://gist.github.com/D10221/6965751bd8d2e279cbbf).
-1. The run task is much simpler, only there's no run command in VSCode by default, so it has to have a hotkey defined separately.
+1. The build task launches `npm run build`, and marked as being a build command (with `isBuildCommand`) so it's bound to the default build hotkey (`Ctrl+Shit+B`). It also has a custom Problem Matcher definition because VSCode doesn't have a [built-in matcher](https://code.visualstudio.com/docs/editor/tasks#_processing-task-output-with-problem-matchers) for Webpack. Webpack's TypeScript output is very similar to what `$tsc` expects, so this pattern is [based on that](https://github.com/Microsoft/vscode/blob/master/src/vs/platform/markers/common/problemMatcher.ts#L411) and on [another Gist example](https://gist.github.com/D10221/6965751bd8d2e279cbbf).
+1. The run task is much simpler, only there's no *run* command in VSCode by default, so it has to have a hotkey defined separately.
 
 ## Unit testing TypeScript
 The most popular unit testing library (as of now) for JS is [Mocha](https://mochajs.org/). It can be used with several assertion frameworks to have different testing syntax. It can be invoked from JS, but can also be launched from the command line, or combined with other launchers like Karma. It's still going to be complicated without combining it with something else, so let's focus on launching it on its own. Even in this case there are two options:
@@ -199,11 +199,11 @@ Similar to unit testing (and debugging), articles about TypeScript code coverage
 
 *nyc* [can handle](https://github.com/istanbuljs/nyc/blob/master/README.md#instrumenting-your-code) running Mocha through NPM, that's what the script line is doing. Setting options for *nyc* can be done in [3 different ways](https://github.com/istanbuljs/nyc/blob/master/README.md#configuring-nyc) and the simplest one is to put them into the `package.json` file. The options above are:
 
-- **include**: Either with this or with the *exclude* option, but the source folders have to be filtered (`node_modules` and the output folder must definitely be excluded). The file patterns in Mocha config don't matter, since with code coverage untested files are also have to be reported.
+- **include**: Either with this or with the *exclude* option, but the source folders have to be filtered (`node_modules` and the output folder must definitely be excluded). The file patterns in Mocha config don't matter, because with code coverage untested files may also have to be reported.
 - **extensions**: By default only `.js` files are scanned in the included folders, TypeScript extensions have to be added here.
 - **require**: This works similarly to Mocha config: here can be the compiler specified if the source files are not simple JavaScript files. But why set it here, if in Mocha it's already set? That's right, those files tested by Mocha don't need this settings, they already been taken care of. This setting is for those files that are *not* tested, not covered. Removing this setting removes those files from the report.
 - **tempDirectory** and **reportDir**: They are necessary so code coverage doesn't create additional directories in the project root folder. Removing them doesn't affect the analysis process.
-- **sourceMap**: Source map file handling, but it's already `true` by default, so it can be omitted.
+- **sourceMap**: Enables source map file handling, but it's already `true` by default, so it can be omitted.
 - **instrument** and **all**: With both set to `true` all source files are evaluated, even the completely untested ones. If either of them is false, only the tested files are included in the report. *(I'm not sure what's happening here, but that's the effect.)*
 - **reporter**: Any of the [supported Istanbul reporters](https://github.com/istanbuljs/istanbul-reports/tree/master/lib) can be listed here. Note that if you want to parse the results in a CI tool (like [in GitLab CI](https://docs.gitlab.com/ce/user/project/pipelines/settings.html#test-coverage-parsing)) use something that has percentages like `text-summary`.
 

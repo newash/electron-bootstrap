@@ -17,7 +17,7 @@
   "include": [              // use "include" instead of "files" to make TSLint happy
     "typings/*",
     "main/main.ts",
-    "renderer/renderer.ts",
+    "renderer/renderer.tsx",
     "**/*.spec.ts"
   ]
 }
